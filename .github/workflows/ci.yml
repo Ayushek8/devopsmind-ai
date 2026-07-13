@@ -10,13 +10,10 @@ on:
       - main
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -31,6 +28,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Planner Test
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           python test_planner.py
 
