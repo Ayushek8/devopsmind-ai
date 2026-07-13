@@ -3,7 +3,7 @@ name: DevOpsMind CI
 on:
   push:
     branches:
-      - main
+      - feature/crewai-integration
 
   pull_request:
     branches:
