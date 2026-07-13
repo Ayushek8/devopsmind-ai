@@ -10,6 +10,27 @@ class EC2Executor:
             region_name=region
         )
 
+        self.actions = {
+            "list": self.list_instances,
+            "create": self.create_instance,
+            "start": self.start_instance,
+            "stop": self.stop_instance,
+            "terminate": self.terminate_instance,
+        }
+
+    def execute(self, action, **kwargs):
+
+        if action not in self.actions:
+            raise Exception(
+                f"Unsupported EC2 action: {action}"
+            )
+
+        return self.actions[action](**kwargs)
+
+    # ---------------------------------
+    # LIST
+    # ---------------------------------
+
     def list_instances(self):
 
         response = self.ec2.describe_instances()
@@ -29,3 +50,43 @@ class EC2Executor:
                 )
 
         return instances
+
+    # ---------------------------------
+    # CREATE
+    # ---------------------------------
+
+    def create_instance(self, **kwargs):
+
+        return {
+            "message": "Create EC2 not implemented yet."
+        }
+
+    # ---------------------------------
+    # START
+    # ---------------------------------
+
+    def start_instance(self, **kwargs):
+
+        return {
+            "message": "Start EC2 not implemented yet."
+        }
+
+    # ---------------------------------
+    # STOP
+    # ---------------------------------
+
+    def stop_instance(self, **kwargs):
+
+        return {
+            "message": "Stop EC2 not implemented yet."
+        }
+
+    # ---------------------------------
+    # TERMINATE
+    # ---------------------------------
+
+    def terminate_instance(self, **kwargs):
+
+        return {
+            "message": "Terminate EC2 not implemented yet."
+        }
