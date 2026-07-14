@@ -1,13 +1,14 @@
 import json
 
-from app.constants.actions import ACTION_ALIASES
 from app.services.llm_service import LLMService
 from app.schemas.execution_command import ExecutionCommand
+from app.utils.json_parser import JSONParser
 
 
 class Planner:
 
     def __init__(self):
+
         self.llm = LLMService()
 
     def plan(self, user_request: str):
@@ -15,11 +16,19 @@ class Planner:
         prompt = f"""
 You are an AI DevOps Planner.
 
-Your responsibility is to convert the user's request into an execution plan.
+Convert the user's request into an execution plan.
 
 Return ONLY valid JSON.
 
-Use ONLY these action names:
+Never wrap the JSON inside markdown.
+
+Never use ```json.
+
+Never explain.
+
+Only return JSON.
+
+Use ONLY these actions:
 
 - list
 - create
@@ -28,23 +37,19 @@ Use ONLY these action names:
 - terminate
 - delete
 - update
+- deploy
 
-Never return AWS API names like:
-- DescribeInstances
-- RunInstances
-- StopInstances
-- StartInstances
-
-Return exactly in this format:
+Return exactly like this:
 
 {{
-    "domain": "aws",
-    "service": "ec2",
-    "action": "list",
-    "parameters": {{}}
+    "domain":"aws",
+    "service":"ec2",
+    "action":"list",
+    "parameters":{{}}
 }}
 
 User Request:
+
 {user_request}
 """
 
@@ -55,10 +60,11 @@ User Request:
         print("=" * 70)
         print(response)
 
-        data = json.loads(response)
+        data = JSONParser.parse(response)
 
-        # Normalize action names
-        action = data.get("action", "").strip()
-        data["action"] = ACTION_ALIASES.get(action, action)
+        print("=" * 70)
+        print("Execution Command")
+        print("=" * 70)
+        print(data)
 
         return ExecutionCommand(**data)
