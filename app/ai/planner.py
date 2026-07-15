@@ -1,5 +1,3 @@
-import json
-
 from app.services.llm_service import LLMService
 from app.schemas.execution_command import ExecutionCommand
 from app.utils.json_parser import JSONParser
@@ -11,6 +9,8 @@ class Planner:
 
         self.llm = LLMService()
 
+    # --------------------------------------------------------
+
     def detect_platform(self, user_request: str):
 
         text = user_request.lower()
@@ -19,10 +19,12 @@ class Planner:
             "github",
             "workflow",
             "pipeline",
+            "deploy",
+            "deployment",
             "pull request",
-            "commit",
-            "deploy"
+            "commit"
         ]):
+
             return "github"
 
         if any(word in text for word in [
@@ -30,31 +32,131 @@ class Planner:
             "job",
             "build"
         ]):
+
             return "jenkins"
 
         if any(word in text for word in [
+            "aws",
             "ec2",
             "vpc",
-            "s3",
             "iam",
-            "aws"
+            "s3"
         ]):
+
             return "aws"
 
         if any(word in text for word in [
             "kubernetes",
             "k8s",
-            "pod",
-            "deployment",
-            "namespace"
+            "pod"
         ]):
+
             return "kubernetes"
 
         return "general"
 
-    def plan(self, user_request: str):
+    # --------------------------------------------------------
+    # FAST RULE ENGINE
+    # --------------------------------------------------------
 
-        platform = self.detect_platform(user_request)
+    def rule_engine(self, message):
+
+        text = message.lower()
+
+        investigate_keywords = [
+
+            "why did deployment fail",
+
+            "deployment failed",
+
+            "investigate deployment",
+
+            "deployment rca",
+
+            "root cause",
+
+            "analyze deployment",
+
+            "analyse deployment",
+
+            "find deployment issue",
+
+            "why pipeline failed"
+
+        ]
+
+        if any(k in text for k in investigate_keywords):
+
+            return ExecutionCommand(
+
+                domain="github",
+
+                service="deployment",
+
+                action="investigate_deployment",
+
+                parameters={}
+
+            )
+
+        workflow_keywords = [
+
+            "show workflows",
+
+            "list workflows",
+
+            "github workflows"
+
+        ]
+
+        if any(k in text for k in workflow_keywords):
+
+            return ExecutionCommand(
+
+                domain="github",
+
+                service="actions",
+
+                action="list_workflows",
+
+                parameters={}
+
+            )
+
+        return None
+
+    # --------------------------------------------------------
+
+    def plan(self, user_request):
+
+        # ----------------------------------------
+        # Try Rule Engine First
+        # ----------------------------------------
+
+        command = self.rule_engine(
+
+            user_request
+
+        )
+
+        if command:
+
+            print("=" * 70)
+            print("Rule Engine Matched")
+            print("=" * 70)
+            print(command)
+
+            return command
+
+        # ----------------------------------------
+        # Otherwise Use LLM
+        # ----------------------------------------
+
+        platform = self.detect_platform(
+
+            user_request
+
+        )
 
         print("=" * 70)
         print(f"Detected Platform : {platform}")
@@ -63,54 +165,25 @@ class Planner:
         if platform == "github":
 
             prompt = f"""
-You are a GitHub Actions planner.
+You are a GitHub planner.
 
 Return ONLY valid JSON.
 
-Never use markdown.
-
-Never explain.
-
-Use ONLY these actions:
+Allowed actions:
 
 trigger_pipeline
+
 list_workflows
+
 deployment_status
-deployment_logs
-deployment_history
+
+investigate_deployment
+
 retry_pipeline
+
 cancel_pipeline
-deployment_summary
 
-Return exactly like this:
-
-{{
-    "domain":"github",
-    "service":"actions",
-    "action":"trigger_pipeline",
-    "parameters":{{}}
-}}
-
-User Request:
-
-{user_request}
-"""
-
-        elif platform == "aws":
-
-            prompt = f"""
-You are an AWS planner.
-
-Return ONLY valid JSON.
-
-Return exactly:
-
-{{
-    "domain":"aws",
-    "service":"ec2",
-    "action":"list",
-    "parameters":{{}}
-}}
+Return ONLY JSON.
 
 User Request:
 
@@ -120,11 +193,7 @@ User Request:
         elif platform == "jenkins":
 
             prompt = f"""
-You are a Jenkins planner.
-
-Return ONLY valid JSON.
-
-Return exactly:
+Return ONLY JSON.
 
 {{
     "domain":"jenkins",
@@ -138,14 +207,27 @@ User Request:
 {user_request}
 """
 
+        elif platform == "aws":
+
+            prompt = f"""
+Return ONLY JSON.
+
+{{
+    "domain":"aws",
+    "service":"ec2",
+    "action":"list",
+    "parameters":{{}}
+}}
+
+User Request:
+
+{user_request}
+"""
+
         elif platform == "kubernetes":
 
             prompt = f"""
-You are a Kubernetes planner.
-
-Return ONLY valid JSON.
-
-Return exactly:
+Return ONLY JSON.
 
 {{
     "domain":"kubernetes",
@@ -162,7 +244,7 @@ User Request:
         else:
 
             prompt = f"""
-Return ONLY valid JSON.
+Return ONLY JSON.
 
 {{
     "domain":"general",
@@ -176,18 +258,25 @@ User Request:
 {user_request}
 """
 
-        response = self.llm.ask(prompt)
+        response = self.llm.ask(
+
+            prompt
+
+        )
 
         print("=" * 70)
-        print("Planner Raw Response")
+        print("Planner Response")
         print("=" * 70)
         print(response)
 
-        data = JSONParser.parse(response)
+        data = JSONParser.parse(
 
-        print("=" * 70)
-        print("Execution Command")
-        print("=" * 70)
-        print(data)
+            response
 
-        return ExecutionCommand(**data)
+        )
+
+        return ExecutionCommand(
+
+            **data
+
+        )

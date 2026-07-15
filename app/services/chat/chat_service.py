@@ -1,6 +1,10 @@
 from app.ai.planner import Planner
+
 from app.router.intent_router import IntentRouter
+
 from app.policy.execution_policy import ExecutionPolicy
+
+from app.core.response_builder import ResponseBuilder
 
 
 class ChatService:
@@ -8,40 +12,83 @@ class ChatService:
     def __init__(self):
 
         self.planner = Planner()
+
         self.router = IntentRouter()
 
     def process(
+
         self,
-        message: str
+
+        message
+
     ):
 
-        # -----------------------------
-        # Convert User Message
-        # into Execution Command
-        # -----------------------------
-
         command = self.planner.plan(
-            message
-        )
 
-        # -----------------------------
-        # Apply Execution Policy
-        # -----------------------------
+            message
+
+        )
 
         command.requires_confirmation = (
+
             ExecutionPolicy.requires_confirmation(
+
                 command.action
+
             )
+
         )
 
-        # -----------------------------
-        # Temporary:
-        # Auto execute
-        #
-        # Later we'll ask for confirmation
-        # in the browser.
-        # -----------------------------
+        result = self.router.route(
 
-        return self.router.route(
             command
+
+        )
+
+        # Already Standard Response
+
+        if (
+
+            isinstance(result, dict)
+
+            and
+
+            "success" in result
+
+        ):
+
+            return result
+
+        # Legacy Response
+
+        if (
+
+            isinstance(result, dict)
+
+            and
+
+            "type" in result
+
+            and
+
+            "response" in result
+
+        ):
+
+            return ResponseBuilder.success(
+
+                result["type"],
+
+                result["response"]
+
+            )
+
+        # String
+
+        return ResponseBuilder.success(
+
+            "text",
+
+            result
+
         )

@@ -17,33 +17,51 @@ from app.api.deployment_api import router as deployment_router
 from app.api.dashboard_api import router as dashboard_router
 
 app = FastAPI(
+
     title=settings.APP_NAME,
+
     version=settings.APP_VERSION
+
 )
 
 chat_service = ChatService()
+
 review_service = ReviewService()
 
 app.mount(
+
     "/static",
+
     StaticFiles(directory="app/static"),
+
     name="static"
+
 )
 
 templates = Jinja2Templates(
+
     directory="app/templates"
+
 )
 
 app.include_router(
+
     deployment_router,
+
     prefix="/api",
+
     tags=["Deployment"]
+
 )
 
 app.include_router(
+
     dashboard_router,
+
     prefix="/api",
+
     tags=["Dashboard"]
+
 )
 
 
@@ -51,9 +69,13 @@ app.include_router(
 async def home(request: Request):
 
     return templates.TemplateResponse(
+
         request=request,
+
         name="index.html",
+
         context={}
+
     )
 
 
@@ -61,78 +83,99 @@ async def home(request: Request):
 def health():
 
     return {
+
         "status": "healthy",
+
         "application": settings.APP_NAME,
+
         "version": settings.APP_VERSION
+
     }
 
 
 @app.post(
+
     "/api/chat",
+
     response_model=ChatResponse
+
 )
 def chat(request: ChatRequest):
 
     try:
 
         result = chat_service.process(
+
             request.message
+
         )
 
-        if isinstance(result, str):
+        if not isinstance(
 
-            return ChatResponse(
-                success=True,
-                type="text",
-                response=result
-            )
+            result,
 
-        if isinstance(result, list):
+            dict
 
-            return ChatResponse(
-                success=True,
-                type="workflows",
-                response=result
-            )
+        ):
 
-        if isinstance(result, dict):
+            result = {
 
-            return ChatResponse(
-                success=True,
-                type=result.get("type", "object"),
-                response=result.get("response", result)
-            )
+                "success": True,
+
+                "type": "text",
+
+                "data": result
+
+            }
 
         return ChatResponse(
-            success=True,
-            type="text",
-            response=str(result)
+
+            **result
+
         )
 
     except Exception as e:
 
         print("=" * 80)
+
         print("CHAT ERROR")
+
         print("=" * 80)
+
         print(e)
 
         return ChatResponse(
+
             success=False,
+
             type="error",
-            response=str(e)
+
+            data={
+
+                "message": str(e)
+
+            }
+
         )
 
 
 @app.post(
+
     "/review/jenkinsfile",
+
     response_model=ReviewResponse
+
 )
 def review(request: ReviewRequest):
 
     result = review_service.review_jenkinsfile(
+
         request.content
+
     )
 
     return ReviewResponse(
+
         review=result
+
     )

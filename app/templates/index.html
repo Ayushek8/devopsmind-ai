@@ -1,7 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>DevOpsMind AI</title>
 
@@ -14,44 +21,117 @@
 
 <body>
 
-<div class="container">
+<div class="page">
 
-<h1>🚀 DevOpsMind AI</h1>
+    <!-- ===================================== -->
+    <!-- Header -->
+    <!-- ===================================== -->
 
-<p>
-Your AI DevOps Engineer
-</p>
+    <header class="header">
 
-<textarea
-id="message"
-placeholder="Type something...
+        <div>
 
-Example:
+            <h1>🚀 DevOpsMind AI</h1>
 
-Deploy latest code
+            <p>AI DevOps Engineer</p>
+
+        </div>
+
+        <div class="header-right">
+
+            <span class="badge github">
+
+                GitHub
+
+            </span>
+
+            <span class="badge jenkins">
+
+                Jenkins
+
+            </span>
+
+            <span class="badge aws">
+
+                AWS
+
+            </span>
+
+        </div>
+
+    </header>
+
+    <!-- ===================================== -->
+    <!-- Prompt -->
+    <!-- ===================================== -->
+
+    <section class="prompt-card">
+
+        <label>
+
+            Ask DevOpsMind
+
+        </label>
+
+        <textarea
+
+            id="message"
+
+            placeholder="Examples:
+
+Why did deployment fail?
 
 Show workflows
 
-Why did deployment fail?"
-></textarea>
+Trigger deployment
 
-<br><br>
+Retry latest pipeline
 
-<button id="execute">
+Show deployment status"
 
-Execute
+        ></textarea>
 
-</button>
+        <button id="execute">
 
-<hr>
+            🚀 Execute
 
-<h2>Response</h2>
+        </button>
 
-<pre id="response">
+    </section>
 
-AI is waiting...
+    <!-- ===================================== -->
+    <!-- Response -->
+    <!-- ===================================== -->
 
-</pre>
+    <section class="response-card">
+
+        <div class="response-header">
+
+            <h2>
+
+                AI Response
+
+            </h2>
+
+            <span id="status">
+
+                Ready
+
+            </span>
+
+        </div>
+
+        <div id="response-container">
+
+            <div id="response">
+
+                Welcome to DevOpsMind AI.
+
+            </div>
+
+        </div>
+
+    </section>
 
 </div>
 
