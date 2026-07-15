@@ -1,13 +1,35 @@
-from app.ai.planner import Planner
+from nonexistent_module import Planner
 
 planner = Planner()
 
-command = planner.plan(
-    "List all EC2 instances"
-)
+tests = [
 
-print("=" * 70)
-print("Execution Command")
-print("=" * 70)
+    "Deploy latest code",
 
-print(command)
+    "List GitHub workflows",
+
+    "Show deployment status",
+
+    "Show deployment logs",
+
+    "Retry deployment",
+
+    "Cancel deployment",
+
+    "Show deployment history"
+
+]
+
+for test in tests:
+
+    print("=" * 80)
+
+    print("USER:", test)
+
+    print("=" * 80)
+
+    command = planner.plan(test)
+
+    print(command)
+
+    print()

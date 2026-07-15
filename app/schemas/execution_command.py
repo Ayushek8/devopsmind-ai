@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Dict
 
 
 class ExecutionCommand(BaseModel):
@@ -10,4 +9,6 @@ class ExecutionCommand(BaseModel):
 
     action: str
 
-    parameters: Dict = {}
+    parameters: dict
+
+    requires_confirmation: bool = False

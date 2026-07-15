@@ -1,34 +1,34 @@
-from enum import Enum
-
-
-class Intent(str, Enum):
-    AWS = "aws"
-    JENKINS = "jenkins"
-    KUBERNETES = "kubernetes"
-    DOCKER = "docker"
-    GIT = "git"
-    UNKNOWN = "unknown"
+from app.agents.github.github_agent import GitHubAgent
 
 
 class IntentRouter:
 
-    def detect(self, text: str) -> Intent:
+    def __init__(self):
 
-        text = text.lower()
+        self.github = GitHubAgent()
 
-        if any(word in text for word in ["ec2", "s3", "iam", "lambda", "vpc", "aws"]):
-            return Intent.AWS
+    def route(self, command):
 
-        if any(word in text for word in ["jenkins", "pipeline", "build"]):
-            return Intent.JENKINS
+        try:
 
-        if any(word in text for word in ["kubernetes", "pod", "deployment", "service", "kubectl"]):
-            return Intent.KUBERNETES
+            if command.domain == "github":
 
-        if any(word in text for word in ["docker", "dockerfile", "container"]):
-            return Intent.DOCKER
+                return self.github.execute(command)
 
-        if any(word in text for word in ["git", "github", "commit", "branch", "pull request"]):
-            return Intent.GIT
+            return {
 
-        return Intent.UNKNOWN
+                "type": "error",
+
+                "response": f"Unsupported domain: {command.domain}"
+
+            }
+
+        except Exception as e:
+
+            return {
+
+                "type": "error",
+
+                "response": str(e)
+
+            }

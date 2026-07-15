@@ -1,6 +1,11 @@
+from typing import Any
 from pydantic import BaseModel
 
 
 class ChatResponse(BaseModel):
 
-    response: str
+    success: bool
+
+    type: str
+
+    response: Any

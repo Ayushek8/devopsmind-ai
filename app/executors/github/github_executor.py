@@ -1,4 +1,4 @@
-from app.services.github.github_client import GitHubClient
+from app.services.github.client.github_client import GitHubClient
 
 
 class GitHubExecutor:
@@ -7,7 +7,7 @@ class GitHubExecutor:
 
         self.client = GitHubClient()
 
-    # ----------------------------------------
+    # ----------------------------------------------------
 
     def list_workflows(self):
 
@@ -27,7 +27,7 @@ class GitHubExecutor:
 
         return result
 
-    # ----------------------------------------
+    # ----------------------------------------------------
 
     def trigger_pipeline(
         self,
@@ -40,7 +40,7 @@ class GitHubExecutor:
             ref
         )
 
-    # ----------------------------------------
+    # ----------------------------------------------------
 
     def latest_run(
         self,
@@ -51,7 +51,7 @@ class GitHubExecutor:
             workflow_file
         )
 
-    # ----------------------------------------
+    # ----------------------------------------------------
 
     def get_run(
         self,
@@ -59,5 +59,16 @@ class GitHubExecutor:
     ):
 
         return self.client.get_run(
+            run_id
+        )
+
+    # ----------------------------------------------------
+
+    def get_jobs(
+        self,
+        run_id
+    ):
+
+        return self.client.get_jobs(
             run_id
         )

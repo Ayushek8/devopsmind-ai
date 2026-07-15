@@ -1,20 +1,34 @@
-from app.registry.executor_registry import EXECUTOR_REGISTRY
-from app.schemas.execution_command import ExecutionCommand
+from app.platforms.factory.platform_factory import PlatformFactory
 
 
 class ExecutionEngine:
 
-    def execute(self, command: ExecutionCommand):
+    def __init__(self):
 
-        # Get the correct executor
-        executor = EXECUTOR_REGISTRY[
+        self.factory = PlatformFactory()
+
+    # --------------------------------------------------
+
+    def execute(
+
+        self,
+
+        command,
+
+        action
+
+    ):
+
+        platform = self.factory.get(
+
             command.domain
-        ][
-            command.service
-        ]
 
-        # Delegate execution to the executor
-        return executor.execute(
-            command.action,
-            **command.parameters
+        )
+
+        return action.execute(
+
+            command,
+
+            platform
+
         )

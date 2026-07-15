@@ -1,20 +1,17 @@
 from app.router.intent_router import IntentRouter
+from app.schemas.execution_command import ExecutionCommand
 
 router = IntentRouter()
 
-commands = [
-    "Create an EC2 instance",
-    "Trigger Jenkins pipeline",
-    "Scale Kubernetes deployment",
-    "Review Dockerfile",
-    "Create Git branch",
-    "Hello DevOpsMind"
-]
+command = ExecutionCommand(
+    domain="github",
+    service="actions",
+    action="list_workflows",
+    parameters={}
+)
 
-print("=" * 50)
-print("Testing Intent Router")
-print("=" * 50)
+print("=" * 70)
+print("Router Test")
+print("=" * 70)
 
-for command in commands:
-    print(f"\nCommand : {command}")
-    print(f"Intent  : {router.detect(command).value}")
+print(router.route(command))

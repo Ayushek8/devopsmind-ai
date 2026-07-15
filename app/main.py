@@ -4,27 +4,25 @@ from fastapi.templating import Jinja2Templates
 
 from app.core.config import settings
 
-from app.schemas.review_request import ReviewRequest
-from app.schemas.review_response import ReviewResponse
 from app.schemas.chat_request import ChatRequest
 from app.schemas.chat_response import ChatResponse
 
-from app.services.review_service import ReviewService
-from app.services.chat.chat_service import ChatService
+from app.schemas.review_request import ReviewRequest
+from app.schemas.review_response import ReviewResponse
 
+from app.services.chat.chat_service import ChatService
+from app.services.review_service import ReviewService
+
+from app.api.deployment_api import router as deployment_router
+from app.api.dashboard_api import router as dashboard_router
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version=settings.APP_VERSION,
+    version=settings.APP_VERSION
 )
 
-review_service = ReviewService()
 chat_service = ChatService()
-
-
-# -------------------------------------------------
-# Static Files
-# -------------------------------------------------
+review_service = ReviewService()
 
 app.mount(
     "/static",
@@ -36,10 +34,18 @@ templates = Jinja2Templates(
     directory="app/templates"
 )
 
+app.include_router(
+    deployment_router,
+    prefix="/api",
+    tags=["Deployment"]
+)
 
-# -------------------------------------------------
-# Home
-# -------------------------------------------------
+app.include_router(
+    dashboard_router,
+    prefix="/api",
+    tags=["Dashboard"]
+)
+
 
 @app.get("/")
 async def home(request: Request):
@@ -51,21 +57,15 @@ async def home(request: Request):
     )
 
 
-# -------------------------------------------------
-# Health
-# -------------------------------------------------
-
 @app.get("/health")
 def health():
 
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "application": settings.APP_NAME,
+        "version": settings.APP_VERSION
     }
 
-
-# -------------------------------------------------
-# AI Chat Endpoint
-# -------------------------------------------------
 
 @app.post(
     "/api/chat",
@@ -73,18 +73,55 @@ def health():
 )
 def chat(request: ChatRequest):
 
-    result = chat_service.process(
-        request.message
-    )
+    try:
 
-    return ChatResponse(
-        response=result
-    )
+        result = chat_service.process(
+            request.message
+        )
 
+        if isinstance(result, str):
 
-# -------------------------------------------------
-# Jenkins Review Endpoint
-# -------------------------------------------------
+            return ChatResponse(
+                success=True,
+                type="text",
+                response=result
+            )
+
+        if isinstance(result, list):
+
+            return ChatResponse(
+                success=True,
+                type="workflows",
+                response=result
+            )
+
+        if isinstance(result, dict):
+
+            return ChatResponse(
+                success=True,
+                type=result.get("type", "object"),
+                response=result.get("response", result)
+            )
+
+        return ChatResponse(
+            success=True,
+            type="text",
+            response=str(result)
+        )
+
+    except Exception as e:
+
+        print("=" * 80)
+        print("CHAT ERROR")
+        print("=" * 80)
+        print(e)
+
+        return ChatResponse(
+            success=False,
+            type="error",
+            response=str(e)
+        )
+
 
 @app.post(
     "/review/jenkinsfile",
