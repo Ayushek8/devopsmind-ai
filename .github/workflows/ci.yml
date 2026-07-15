@@ -37,6 +37,3 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t devopsmind-ai .
-
-      - name: Force Failure
-        run: exit 1
