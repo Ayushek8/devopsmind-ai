@@ -284,8 +284,41 @@ User Request:
 
         )
 
+        print("=" * 70)
+        print("Planner Parsed JSON")
+        print("=" * 70)
+        print(data)
+
+        command = {
+
+            "domain": data.get(
+                "domain",
+                platform
+            ),
+
+            "service": data.get(
+                "service",
+                "actions"
+            ),
+
+            "action": data.get(
+                "action"
+            ),
+
+            "parameters": data.get(
+                "parameters",
+                {}
+            )
+
+        }
+
+        print("=" * 70)
+        print("Execution Command")
+        print("=" * 70)
+        print(command)
+
         return ExecutionCommand(
 
-            **data
+            **command
 
         )
