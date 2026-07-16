@@ -63,165 +63,76 @@ class Planner:
 
         text = message.lower().strip()
 
-    # ----------------------------------------
-    # GitHub Workflows
-    # ----------------------------------------
+        workflow_keywords = [
+            "workflow","workflows","github workflow","github workflows",
+            "list workflow","show workflow","show workflows","available workflows"
+        ]
 
-    workflow_keywords = [
+        if any(k in text for k in workflow_keywords):
+            return ExecutionCommand(
+                domain="github",
+                service="actions",
+                action="list_workflows",
+                parameters={}
+            )
 
-        "workflow",
-        "workflows",
-        "github workflow",
-        "github workflows",
-        "list workflow",
-        "show workflow",
-        "show workflows",
-        "available workflows"
+        history_keywords = [
+            "deployment history","pipeline history","workflow history",
+            "recent deployments","previous deployments","last deployments",
+            "recent runs","last runs","show history"
+        ]
 
-    ]
+        if any(k in text for k in history_keywords):
+            return ExecutionCommand(
+                domain="github",
+                service="actions",
+                action="deployment_history",
+                parameters={}
+            )
 
-    if any(word in text for word in workflow_keywords):
+        retry_keywords = [
+            "retry latest pipeline","retry pipeline","retry deployment",
+            "rerun pipeline","rerun workflow","deploy again","run again"
+        ]
 
-        return ExecutionCommand(
+        if any(k in text for k in retry_keywords):
+            return ExecutionCommand(
+                domain="github",
+                service="actions",
+                action="retry_pipeline",
+                parameters={}
+            )
 
-            domain="github",
-            service="actions",
-            action="list_workflows",
-            parameters={}
+        investigate_keywords = [
+            "why did deployment fail","deployment failed","why pipeline failed",
+            "pipeline failed","deployment issue","pipeline issue",
+            "investigate deployment","investigate pipeline","root cause","rca",
+            "analyze deployment","analyse deployment","failed deployment",
+            "latest failed deployment","show latest failed deployment","what failed","what broke"
+        ]
 
-        )
+        if any(k in text for k in investigate_keywords):
+            return ExecutionCommand(
+                domain="github",
+                service="deployment",
+                action="investigate_deployment",
+                parameters={}
+            )
 
-    # ----------------------------------------
-    # Deployment History
-    # ----------------------------------------
+        status_keywords=[
+            "deployment status","pipeline status","workflow status",
+            "current deployment","latest deployment","status"
+        ]
 
-    history_keywords = [
+        if any(k in text for k in status_keywords):
+            return ExecutionCommand(
+                domain="github",
+                service="actions",
+                action="deployment_status",
+                parameters={}
+            )
 
-        "history",
-        "deployment history",
-        "pipeline history",
-        "workflow history",
-        "recent deployments",
-        "recent pipelines",
-        "previous deployments",
-        "previous pipeline",
-        "last deployments",
-        "last pipeline",
-        "last runs",
-        "recent runs",
-        "show history"
-
-    ]
-
-    if any(word in text for word in history_keywords):
-
-        return ExecutionCommand(
-
-            domain="github",
-            service="actions",
-            action="deployment_history",
-            parameters={}
-
-        )
-
-    # ----------------------------------------
-    # Retry Pipeline
-    # ----------------------------------------
-
-    retry_keywords = [
-
-        "retry",
-        "rerun",
-        "run again",
-        "deploy again",
-        "retry deployment",
-        "retry pipeline",
-        "retry workflow",
-        "rerun workflow",
-        "rerun pipeline",
-        "rerun deployment",
-        "run failed pipeline",
-        "retry latest pipeline",
-        "retry latest deployment"
-
-    ]
-
-    if any(word in text for word in retry_keywords):
-
-        return ExecutionCommand(
-
-            domain="github",
-            service="actions",
-            action="retry_pipeline",
-            parameters={}
-
-        )
-
-    # ----------------------------------------
-    # Investigate Failure
-    # ----------------------------------------
-
-    investigate_keywords = [
-
-        "why did deployment fail",
-        "deployment failed",
-        "why pipeline failed",
-        "pipeline failed",
-        "deployment issue",
-        "pipeline issue",
-        "investigate deployment",
-        "investigate pipeline",
-        "root cause",
-        "rca",
-        "analyze deployment",
-        "analyse deployment",
-        "show latest failed deployment",
-        "show failed deployment",
-        "failed deployment",
-        "latest failed deployment",
-        "what failed",
-        "what broke"
-
-    ]
-
-    if any(word in text for word in investigate_keywords):
-
-        return ExecutionCommand(
-
-            domain="github",
-            service="deployment",
-            action="investigate_deployment",
-            parameters={}
-
-        )
-
-    # ----------------------------------------
-    # Deployment Status
-    # ----------------------------------------
-
-    status_keywords = [
-
-        "deployment status",
-        "pipeline status",
-        "workflow status",
-        "current deployment",
-        "latest deployment",
-        "status"
-
-    ]
-
-    if any(word in text for word in status_keywords):
-
-        return ExecutionCommand(
-
-            domain="github",
-            service="actions",
-            action="deployment_status",
-            parameters={}
-
-        )
-
-    return None
+        return None
 
     # --------------------------------------------------------
 
