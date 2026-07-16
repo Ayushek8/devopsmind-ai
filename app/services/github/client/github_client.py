@@ -37,10 +37,16 @@ class GitHubClient:
         }
 
     # -------------------------------------------------
-    # HTTP METHODS
+    # HTTP GET
     # -------------------------------------------------
 
-    def get(self, endpoint):
+    def get(
+
+        self,
+
+        endpoint
+
+    ):
 
         response = requests.get(
 
@@ -54,13 +60,17 @@ class GitHubClient:
 
         return response.json()
 
+    # -------------------------------------------------
+    # HTTP POST
+    # -------------------------------------------------
+
     def post(
 
         self,
 
         endpoint,
 
-        payload
+        payload=None
 
     ):
 
@@ -76,12 +86,68 @@ class GitHubClient:
 
         response.raise_for_status()
 
-        return response
+        if response.text:
+
+            try:
+
+                return response.json()
+
+            except Exception:
+
+                return {
+
+                    "success": True,
+
+                    "status_code": response.status_code
+
+                }
+
+        return {
+
+            "success": True,
+
+            "status_code": response.status_code
+
+        }
 
     # -------------------------------------------------
-    # Repository
+    # HTTP DELETE
     # -------------------------------------------------
 
-    def repository_object(self):
+    def delete(
+
+        self,
+
+        endpoint
+
+    ):
+
+        response = requests.delete(
+
+            self.base_url + endpoint,
+
+            headers=self.headers
+
+        )
+
+        response.raise_for_status()
+
+        return {
+
+            "success": True,
+
+            "status_code": response.status_code
+
+        }
+
+    # -------------------------------------------------
+    # Repository Object
+    # -------------------------------------------------
+
+    def repository_object(
+
+        self
+
+    ):
 
         return self.repository

@@ -12,12 +12,17 @@ class RunService:
     # ----------------------------------------------------
 
     def latest(
+
         self,
+
         workflow_file
+
     ):
 
         data = self.client.get(
+
             f"/actions/workflows/{workflow_file}/runs"
+
         )
 
         if data["total_count"] == 0:
@@ -31,16 +36,21 @@ class RunService:
     # ----------------------------------------------------
 
     def get(
+
         self,
+
         run_id
+
     ):
 
         return self.client.get(
+
             f"/actions/runs/{run_id}"
+
         )
 
     # ----------------------------------------------------
-    # List Runs
+    # History
     # ----------------------------------------------------
 
     def history(
@@ -88,3 +98,39 @@ class RunService:
             )
 
         return result
+
+    # ----------------------------------------------------
+    # Retry Run
+    # ----------------------------------------------------
+
+    def retry(
+
+        self,
+
+        run_id
+
+    ):
+
+        return self.client.post(
+
+            f"/actions/runs/{run_id}/rerun"
+
+        )
+
+    # ----------------------------------------------------
+    # Cancel Run
+    # ----------------------------------------------------
+
+    def cancel(
+
+        self,
+
+        run_id
+
+    ):
+
+        return self.client.post(
+
+            f"/actions/runs/{run_id}/cancel"
+
+        )

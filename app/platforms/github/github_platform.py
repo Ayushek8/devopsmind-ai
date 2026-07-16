@@ -83,6 +83,32 @@ class GitHubPlatform(Platform):
 
         )
 
+    def latest_failed_run(
+
+        self,
+
+        workflow,
+
+        limit=20
+
+    ):
+
+        history = self.history.latest(
+
+            workflow,
+
+            limit
+
+        )
+
+        for run in history:
+
+            if run["conclusion"] == "failure":
+
+                return run
+
+        return None
+
     # ----------------------------------------------------
     # Jobs
     # ----------------------------------------------------
@@ -145,8 +171,10 @@ class GitHubPlatform(Platform):
 
     ):
 
-        raise NotImplementedError(
-            "Retry will be implemented in Module-2"
+        return self.run.retry(
+
+            run_id
+
         )
 
     # ----------------------------------------------------
@@ -161,6 +189,8 @@ class GitHubPlatform(Platform):
 
     ):
 
-        raise NotImplementedError(
-            "Cancel will be implemented in Module-2"
+        return self.run.cancel(
+
+            run_id
+
         )

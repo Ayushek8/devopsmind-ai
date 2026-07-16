@@ -115,6 +115,73 @@ function renderWorkflows(workflows) {
 
 }
 
+// ======================================================
+// Deployment History
+// ======================================================
+
+function renderHistory(history) {
+
+    status.innerText = "Completed";
+
+    let html = "";
+
+    history.forEach(run => {
+
+        const color =
+            run.conclusion === "success"
+                ? "#22c55e"
+                : run.conclusion === "failure"
+                ? "#ef4444"
+                : "#f59e0b";
+
+        html += `
+
+        <div class="workflow-card" style="border-left:5px solid ${color}">
+
+            <div class="workflow-name">
+
+                🚀 ${run.workflow}
+
+            </div>
+
+            <div>
+
+                <b>Branch:</b> ${run.branch}
+
+            </div>
+
+            <div>
+
+                <b>Status:</b> ${run.status}
+
+            </div>
+
+            <div>
+
+                <b>Conclusion:</b> ${run.conclusion}
+
+            </div>
+
+            <div>
+
+                <b>Event:</b> ${run.event}
+
+            </div>
+
+            <div class="workflow-path">
+
+                ${run.created_at}
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    response.innerHTML = html;
+}
 
 // ======================================================
 // Incident
@@ -296,6 +363,55 @@ ${incident.confidence}
 
 }
 
+// ======================================================
+// Deployment Response
+// ======================================================
+
+function renderDeployment(data) {
+
+    status.innerText = "Completed";
+
+    response.innerHTML = `
+
+    <div class="workflow-card">
+
+        <h3>
+
+            ✅ ${data.message}
+
+        </h3>
+
+        <br>
+
+        <div>
+
+            <b>Workflow:</b>
+
+            ${data.workflow}
+
+        </div>
+
+        <div>
+
+            <b>Status:</b>
+
+            ${data.status}
+
+        </div>
+
+        <div>
+
+            <b>Run ID:</b>
+
+            ${data.run_id}
+
+        </div>
+
+    </div>
+
+    `;
+}
+
 
 // ======================================================
 // Execute
@@ -341,65 +457,88 @@ executeButton.onclick = async () => {
 
         if (!data.success) {
 
-            renderError(
+    renderError(
 
-                data.data.message
+        data.data?.message ||
+        data.message ||
+        "Unknown Error"
 
-            );
+    );
 
-            return;
+    return;
 
-        }
+}
+
 
         switch (data.type) {
 
-            case "text":
+    case "text":
 
-                renderText(
+        renderText(
 
-                    data.data
+            data.data
 
-                );
+        );
 
-                break;
+        break;
 
-            case "workflows":
+    case "workflows":
 
-                renderWorkflows(
+        renderWorkflows(
 
-                    data.data
+            data.data
 
-                );
+        );
 
-                break;
+        break;
 
-            case "incident":
+    case "history":
 
-                renderIncident(
+        renderHistory(
 
-                    data.data
+            data.data
 
-                );
+        );
 
-                break;
+        break;
 
-            default:
+    case "deployment":
 
-                renderText(
+        renderDeployment(
 
-                    JSON.stringify(
+            data.data
 
-                        data.data,
+        );
 
-                        null,
+        break;
 
-                        4
+    case "incident":
 
-                    )
+        renderIncident(
 
-                );
+            data.data
 
-        }
+        );
+
+        break;
+
+    default:
+
+        renderText(
+
+            JSON.stringify(
+
+                data.data,
+
+                null,
+
+                4
+
+            )
+
+        );
+            break;
+    }         
 
     }
 
@@ -407,7 +546,7 @@ executeButton.onclick = async () => {
 
         renderError(
 
-            err
+           err.message || err
 
         );
 

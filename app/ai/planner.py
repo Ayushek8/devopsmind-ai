@@ -61,69 +61,167 @@ class Planner:
 
     def rule_engine(self, message):
 
-        text = message.lower()
+        text = message.lower().strip()
 
-        investigate_keywords = [
+    # ----------------------------------------
+    # GitHub Workflows
+    # ----------------------------------------
 
-            "why did deployment fail",
+    workflow_keywords = [
 
-            "deployment failed",
+        "workflow",
+        "workflows",
+        "github workflow",
+        "github workflows",
+        "list workflow",
+        "show workflow",
+        "show workflows",
+        "available workflows"
 
-            "investigate deployment",
+    ]
 
-            "deployment rca",
+    if any(word in text for word in workflow_keywords):
 
-            "root cause",
+        return ExecutionCommand(
 
-            "analyze deployment",
+            domain="github",
+            service="actions",
+            action="list_workflows",
+            parameters={}
 
-            "analyse deployment",
+        )
 
-            "find deployment issue",
+    # ----------------------------------------
+    # Deployment History
+    # ----------------------------------------
 
-            "why pipeline failed"
+    history_keywords = [
 
-        ]
+        "history",
+        "deployment history",
+        "pipeline history",
+        "workflow history",
+        "recent deployments",
+        "recent pipelines",
+        "previous deployments",
+        "previous pipeline",
+        "last deployments",
+        "last pipeline",
+        "last runs",
+        "recent runs",
+        "show history"
 
-        if any(k in text for k in investigate_keywords):
+    ]
 
-            return ExecutionCommand(
+    if any(word in text for word in history_keywords):
 
-                domain="github",
+        return ExecutionCommand(
 
-                service="deployment",
+            domain="github",
+            service="actions",
+            action="deployment_history",
+            parameters={}
 
-                action="investigate_deployment",
+        )
 
-                parameters={}
+    # ----------------------------------------
+    # Retry Pipeline
+    # ----------------------------------------
 
-            )
+    retry_keywords = [
 
-        workflow_keywords = [
+        "retry",
+        "rerun",
+        "run again",
+        "deploy again",
+        "retry deployment",
+        "retry pipeline",
+        "retry workflow",
+        "rerun workflow",
+        "rerun pipeline",
+        "rerun deployment",
+        "run failed pipeline",
+        "retry latest pipeline",
+        "retry latest deployment"
 
-            "show workflows",
+    ]
 
-            "list workflows",
+    if any(word in text for word in retry_keywords):
 
-            "github workflows"
+        return ExecutionCommand(
 
-        ]
+            domain="github",
+            service="actions",
+            action="retry_pipeline",
+            parameters={}
 
-        if any(k in text for k in workflow_keywords):
+        )
 
-            return ExecutionCommand(
+    # ----------------------------------------
+    # Investigate Failure
+    # ----------------------------------------
 
-                domain="github",
+    investigate_keywords = [
 
-                service="actions",
+        "why did deployment fail",
+        "deployment failed",
+        "why pipeline failed",
+        "pipeline failed",
+        "deployment issue",
+        "pipeline issue",
+        "investigate deployment",
+        "investigate pipeline",
+        "root cause",
+        "rca",
+        "analyze deployment",
+        "analyse deployment",
+        "show latest failed deployment",
+        "show failed deployment",
+        "failed deployment",
+        "latest failed deployment",
+        "what failed",
+        "what broke"
 
-                action="list_workflows",
+    ]
 
-                parameters={}
+    if any(word in text for word in investigate_keywords):
 
-            )
+        return ExecutionCommand(
 
-        return None
+            domain="github",
+            service="deployment",
+            action="investigate_deployment",
+            parameters={}
+
+        )
+
+    # ----------------------------------------
+    # Deployment Status
+    # ----------------------------------------
+
+    status_keywords = [
+
+        "deployment status",
+        "pipeline status",
+        "workflow status",
+        "current deployment",
+        "latest deployment",
+        "status"
+
+    ]
+
+    if any(word in text for word in status_keywords):
+
+        return ExecutionCommand(
+
+            domain="github",
+            service="actions",
+            action="deployment_status",
+            parameters={}
+
+        )
+
+    return None
 
     # --------------------------------------------------------
 
