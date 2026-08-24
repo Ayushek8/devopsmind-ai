@@ -2,167 +2,245 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>DevOpsMind AI</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOpsMind AI - Dashboard & SRE Hub</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=1.0.4">
     <link
-        rel="stylesheet"
-        href="/static/css/style.css"
-    >
-
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
 
-<div class="page">
+    <div class="page">
 
-    <!-- ===================================================== -->
-    <!-- Header -->
-    <!-- ===================================================== -->
+        <!-- ===================================================== -->
+        <!-- Header -->
+        <!-- ===================================================== -->
+        <header class="header">
+            <div>
+                <h1>🚀 DevOpsMind </h1>
+                <p>AI Powered DevOps Architect & SRE Hub</p>
+            </div>
+            <div class="header-right">
+                <span class="badge github">GitHub</span>
+                <span class="badge jenkins">Jenkins</span>
+                <span class="badge aws">AWS</span>
+            </div>
+        </header>
 
-    <header class="header">
-
-        <div>
-
-            <h1>🚀 DevOpsMind AI</h1>
-
-            <p>
-
-                AI Powered DevOps Engineer
-
-            </p>
-
+        <!-- ===================================================== -->
+        <!-- Navigation Tabs -->
+        <!-- ===================================================== -->
+        <div class="tabs-nav">
+            <button id="tab-chat" class="tab-btn active">🤖 TalkOps Chat</button>
+            <button id="tab-dashboard" class="tab-btn">📊 Actions Dashboard</button>
         </div>
 
-        <div class="header-right">
-
-            <span class="badge github">
-
-                GitHub
-
-            </span>
-
-            <span class="badge jenkins">
-
-                Jenkins
-
-            </span>
-
-            <span class="badge aws">
-
-                AWS
-
-            </span>
-
-        </div>
-
-    </header>
-
-    <!-- ===================================================== -->
-    <!-- Prompt -->
-    <!-- ===================================================== -->
-
-    <section class="prompt-card">
-
-        <label>
-
-            Ask DevOpsMind
-
-        </label>
-
-        <textarea
-
-            id="message"
-
-            placeholder="Examples:
-
-• Why did deployment fail?
-
-• Show workflows
-
-• Trigger deployment
-
-• Retry latest pipeline
-
-• Show deployment history
-
-• Show latest failed deployment"
-
-        ></textarea>
-
-        <button id="execute">
-
-            🚀 Execute
-
-        </button>
-
-    </section>
-
-    <!-- ===================================================== -->
-    <!-- Response -->
-    <!-- ===================================================== -->
-
-    <section class="response-card">
-
-        <div class="response-header">
-
-            <h2>
-
-                Investigation Result
-
-            </h2>
-
-            <span id="status">
-
-                Ready
-
-            </span>
-
-        </div>
-
-        <div id="response-container">
-
-            <div id="response">
-
-                <div class="empty-state">
-
-                    <div class="empty-icon">
-
-                        🤖
-
+        <!-- ===================================================== -->
+        <!-- Chat Section (Revamped Messaging Bubbles Layout) -->
+        <!-- ===================================================== -->
+        <div id="content-chat" class="tab-content active">
+            <div class="chat-container">
+                <!-- Left Suggestions Pane -->
+                <div class="chat-suggestions">
+                    <h3>💡 Quick Commands</h3>
+                    <div class="suggestion-list">
+                        <button class="suggest-btn" data-prompt="Why did deployment fail?">🔍 Why did deployment fail?</button>
+                        <button class="suggest-btn" data-prompt="Show workflows">🚀 Show workflows</button>
+                        <button class="suggest-btn" data-prompt="Show latest failed deployment">🚨 Show latest failed run</button>
+                        <button class="suggest-btn" data-prompt="Show deployment history">📅 Show run history</button>
+                        <button class="suggest-btn" data-prompt="Retry latest pipeline">🔄 Retry latest pipeline</button>
                     </div>
-
-                    <h3>
-
-                        DevOpsMind is Ready
-
-                    </h3>
-
-                    <p>
-
-                        Ask a deployment, GitHub Actions, Jenkins, Kubernetes, Docker or AWS related question to begin an investigation.
-
-                    </p>
-
                 </div>
 
-            </div>
+                <!-- Right Chat Console -->
+                <div class="chat-console">
+                    <div class="chat-header">
+                        <div class="chat-agent-info">
+                            <div class="agent-avatar">🤖</div>
+                            <div>
+                                <h4>DevOpsMind AI Assistant</h4>
+                                <span class="agent-status-badge">🟢 AI Agent Online</span>
+                            </div>
+                        </div>
+                        <span id="status" class="status-badge">Ready</span>
+                    </div>
 
+                    <div id="response-container" class="chat-history">
+                        <div id="chat-bubbles">
+                            <div class="chat-bubble ai">
+                                <div class="bubble-avatar">🤖</div>
+                                <div class="bubble-body">
+                                    <div class="bubble-sender">DevOpsMind</div>
+                                    <div class="bubble-content">
+                                        <h3>Welcome to DevOpsMind AI SRE Hub!</h3>
+                                        <p>I can help you monitor GitHub workflows, investigate deployment failures, trigger pipelines, and analyze root causes.</p>
+                                        <p>Ask a question or select a quick command from the left sidebar to start.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-bar">
+                        <textarea id="message" placeholder="Ask DevOpsMind anything about deployments, failures, or platform state..." rows="1"></textarea>
+                        <button id="execute">🚀 Send</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-    </section>
+        <!-- ===================================================== -->
+        <!-- Dashboard Section (With Stats & Filters) -->
+        <!-- ===================================================== -->
+        <div id="content-dashboard" class="tab-content">
+            <!-- Stats Panel -->
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Runs</span>
+                        <h2 id="stat-total-runs">--</h2>
+                    </div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Success Rate</span>
+                        <h2 id="stat-success-rate">--</h2>
+                    </div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Failed Runs</span>
+                        <h2 id="stat-failed-runs">--</h2>
+                    </div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Active Runs</span>
+                        <h2 id="stat-active-runs">--</h2>
+                    </div>
+                </div>
+            </div>
 
-</div>
+            <div class="dashboard-grid">
+                <!-- Sidebar: Workflows -->
+                <div class="dashboard-sidebar">
+                    <div class="sidebar-header">
+                        <h3>Workflows</h3>
+                        <button id="btn-refresh-workflows" class="btn-icon">🔄</button>
+                    </div>
+                    <div class="search-box-container">
+                        <input type="text" id="workflow-search" placeholder="Search workflows..." class="search-input">
+                    </div>
+                    <div id="workflows-list" class="sidebar-list">
+                        <div class="loading-small">Loading workflows...</div>
+                    </div>
+                </div>
 
-<script src="/static/js/app.js"></script>
+                <!-- Main: Runs -->
+                <div class="dashboard-main">
+                    <div class="main-header">
+                        <h3 id="current-workflow-title">All Recent Runs</h3>
+                        <div class="header-actions">
+                            <select id="run-status-filter" class="filter-select">
+                                <option value="all">All Statuses</option>
+                                <option value="success">Success</option>
+                                <option value="failure">Failure</option>
+                                <option value="in_progress">Active / Running</option>
+                                <option value="queued">Queued</option>
+                            </select>
+                            <button id="btn-trigger-run" class="btn-success disabled" disabled>⚡ Trigger Run</button>
+                            <button id="btn-refresh-runs" class="btn-secondary">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    <div id="runs-list" class="runs-table-container">
+                        <div class="loading-small">Loading runs...</div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Detail Drawer overlay for Run Details -->
+            <div id="run-detail-panel" class="detail-drawer">
+                <div class="drawer-header">
+                    <div class="title-wrap">
+                        <span id="drawer-run-badge" class="run-status-badge">Success</span>
+                        <h3 id="drawer-run-title">Run #12345</h3>
+                    </div>
+                    <span id="drawer-close" class="close-btn">&times;</span>
+                </div>
+                <div class="drawer-content">
+                    <div class="run-meta-summary">
+                        <p><strong>Branch:</strong> <span id="run-detail-branch">main</span> | <strong>Event:</strong>
+                            <span id="run-detail-event">push</span></p>
+                        <p id="run-detail-commit" class="commit-msg">Commit Message</p>
+                    </div>
+
+                    <div class="drawer-actions-row">
+                        <button id="btn-retry-run" class="btn-primary">🔄 Rerun Jobs</button>
+                        <button id="btn-cancel-run" class="btn-danger">🚫 Cancel Run</button>
+                        <button id="btn-ai-investigate" class="btn-warning">🧠 AI SRE Investigate</button>
+                    </div>
+
+                    <div class="drawer-sections-grid">
+                        <!-- Left: Jobs List -->
+                        <div class="drawer-jobs-list">
+                            <h4>Jobs & Steps</h4>
+                            <div id="jobs-container"></div>
+                        </div>
+                        <!-- Right: Log Viewer & AI Diagnostics -->
+                        <div class="drawer-log-viewer">
+                            <div class="log-tabs">
+                                <button id="log-tab-raw" class="log-tab-btn active">💻 Console Logs</button>
+                                <button id="log-tab-ai" class="log-tab-btn">🧠 AI Diagnostics</button>
+                            </div>
+                            <div class="log-content-container">
+                                <div id="log-viewer-console" class="log-terminal active">
+                                    Select a step to view console logs.
+                                </div>
+                                <div id="log-viewer-ai" class="ai-report-panel">
+                                    Select a failed run and click "AI SRE Investigate" to generate failure diagnostics.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: Trigger Workflow -->
+    <div id="modal-trigger" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Trigger Workflow Dispatch</h3>
+                <span id="modal-close" class="close-btn">&times;</span>
+            </div>
+            <form id="trigger-form">
+                <div class="form-group">
+                    <label for="trigger-workflow-file">Workflow File</label>
+                    <input type="text" id="trigger-workflow-file" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="trigger-branch">Git Branch / Ref</label>
+                    <input type="text" id="trigger-branch" placeholder="main" value="main" required>
+                </div>
+                <div class="form-group">
+                    <label for="trigger-inputs">Inputs (JSON format - Optional)</label>
+                    <textarea id="trigger-inputs" placeholder='{ "debug": "true" }'></textarea>
+                </div>
+                <button type="submit" class="btn-primary">⚡ Dispatch Run</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js?v=1.0.4"></script>
 </body>
 
 </html>

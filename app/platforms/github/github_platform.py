@@ -83,6 +83,24 @@ class GitHubPlatform(Platform):
 
         )
 
+    def list_runs(
+
+        self,
+
+        workflow=None,
+
+        limit=20
+
+    ):
+
+        return self.run.list_runs(
+
+            workflow,
+
+            limit
+
+        )
+
     def latest_failed_run(
 
         self,

@@ -11,7 +11,7 @@ class GitHubExecutor:
 
     def list_workflows(self):
 
-        workflows = self.client.get_workflows()
+        workflows = self.client.repository_object().get_workflows()
 
         result = []
 

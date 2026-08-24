@@ -63,55 +63,7 @@ class Planner:
 
         text = message.lower().strip()
 
-        workflow_keywords = [
-            "workflow","workflows","github workflow","github workflows",
-            "list workflow","show workflow","show workflows","available workflows"
-        ]
-
-        if any(k in text for k in workflow_keywords):
-            return ExecutionCommand(
-                domain="github",
-                service="actions",
-                action="list_workflows",
-                parameters={}
-            )
-
-        history_keywords = [
-            "deployment history","pipeline history","workflow history",
-            "recent deployments","previous deployments","last deployments",
-            "recent runs","last runs","show history"
-        ]
-
-        if any(k in text for k in history_keywords):
-            return ExecutionCommand(
-                domain="github",
-                service="actions",
-                action="deployment_history",
-                parameters={}
-            )
-
-        retry_keywords = [
-            "retry latest pipeline","retry pipeline","retry deployment",
-            "rerun pipeline","rerun workflow","deploy again","run again"
-        ]
-
-        if any(k in text for k in retry_keywords):
-            return ExecutionCommand(
-                domain="github",
-                service="actions",
-                action="retry_pipeline",
-                parameters={}
-            )
-
-        investigate_keywords = [
-            "why did deployment fail","deployment failed","why pipeline failed",
-            "pipeline failed","deployment issue","pipeline issue",
-            "investigate deployment","investigate pipeline","root cause","rca",
-            "analyze deployment","analyse deployment","failed deployment",
-            "latest failed deployment","show latest failed deployment","what failed","what broke"
-        ]
-
-        if any(k in text for k in investigate_keywords):
+        if text == "why did deployment fail?":
             return ExecutionCommand(
                 domain="github",
                 service="deployment",
@@ -119,16 +71,35 @@ class Planner:
                 parameters={}
             )
 
-        status_keywords=[
-            "deployment status","pipeline status","workflow status",
-            "current deployment","latest deployment","status"
-        ]
-
-        if any(k in text for k in status_keywords):
+        if text in ["show workflows", "list workflows"]:
             return ExecutionCommand(
                 domain="github",
                 service="actions",
-                action="deployment_status",
+                action="list_workflows",
+                parameters={}
+            )
+
+        if text in ["show latest failed deployment", "show latest failed run"]:
+            return ExecutionCommand(
+                domain="github",
+                service="deployment",
+                action="investigate_deployment",
+                parameters={}
+            )
+
+        if text in ["show deployment history", "show run history", "show history"]:
+            return ExecutionCommand(
+                domain="github",
+                service="actions",
+                action="deployment_history",
+                parameters={}
+            )
+
+        if text == "retry latest pipeline":
+            return ExecutionCommand(
+                domain="github",
+                service="actions",
+                action="retry_pipeline",
                 parameters={}
             )
 
@@ -161,116 +132,56 @@ class Planner:
         # Otherwise Use LLM
         # ----------------------------------------
 
-        platform = self.detect_platform(
+        prompt = f"""
+You are the DevOpsMind Planner AI. Analyze the user's request (which can be in any language) and map it to the correct execution command.
 
-            user_request
+Allowed domains, services and actions:
 
-        )
+1. GitHub Actions / Deployments:
+   - domain: "github"
+     service: "actions"
+     action: "list_workflows" (For showing/listing available workflows or pipelines)
+   - domain: "github"
+     service: "actions"
+     action: "deployment_history" (For showing workflow runs, run history, pipeline history)
+   - domain: "github"
+     service: "actions"
+     action: "deployment_status" (For checking the status of the latest run or pipeline)
+   - domain: "github"
+     service: "actions"
+     action: "retry_pipeline" (For retrying, rerunning, or starting again the latest failed pipeline or workflow)
+   - domain: "github"
+     service: "actions"
+     action: "cancel_pipeline" (For cancelling the currently running workflow or pipeline)
+   - domain: "github"
+     service: "actions"
+     action: "trigger_pipeline" (For triggering, dispatching, or starting a new workflow run)
+     parameters: {{ "workflow_file": "<filename.yml if mentioned>", "ref": "<branch name if mentioned>" }}
+   - domain: "github"
+     service: "deployment"
+     action: "investigate_deployment" (For investigating why the latest deployment or pipeline failed, root cause analysis, or rca of build failure)
 
-        print("=" * 70)
-        print(f"Detected Platform : {platform}")
-        print("=" * 70)
+2. General Chat / SRE Q&A / Other Platforms (AWS, Jenkins, Kubernetes, Docker, generic questions, greetings, explanations):
+   - domain: "general"
+     service: "chat"
+     action: "answer"
+     parameters: {{ "question": "<the user request preserved in the user's original language>" }}
 
-        if platform == "github":
-
-            prompt = f"""
-You are a GitHub planner.
-
-Return ONLY valid JSON.
-
-Allowed actions:
-
-trigger_pipeline
-
-list_workflows
-
-deployment_status
-
-investigate_deployment
-
-retry_pipeline
-
-cancel_pipeline
-
-Return ONLY JSON.
-
-User Request:
-
-{user_request}
-"""
-
-        elif platform == "jenkins":
-
-            prompt = f"""
-Return ONLY JSON.
-
+You must return ONLY a valid JSON object matching this schema:
 {{
-    "domain":"jenkins",
-    "service":"pipeline",
-    "action":"trigger_pipeline",
-    "parameters":{{}}
+    "domain": "github" | "general",
+    "service": "actions" | "deployment" | "chat",
+    "action": "list_workflows" | "deployment_history" | "deployment_status" | "retry_pipeline" | "cancel_pipeline" | "trigger_pipeline" | "investigate_deployment" | "answer",
+    "parameters": {{ ... }}
 }}
 
-User Request:
+Do not include any explanation or markdown formatting in your response. Return raw JSON only.
 
-{user_request}
-"""
-
-        elif platform == "aws":
-
-            prompt = f"""
-Return ONLY JSON.
-
-{{
-    "domain":"aws",
-    "service":"ec2",
-    "action":"list",
-    "parameters":{{}}
-}}
-
-User Request:
-
-{user_request}
-"""
-
-        elif platform == "kubernetes":
-
-            prompt = f"""
-Return ONLY JSON.
-
-{{
-    "domain":"kubernetes",
-    "service":"deployment",
-    "action":"scale",
-    "parameters":{{}}
-}}
-
-User Request:
-
-{user_request}
-"""
-
-        else:
-
-            prompt = f"""
-Return ONLY JSON.
-
-{{
-    "domain":"general",
-    "service":"chat",
-    "action":"answer",
-    "parameters":{{}}
-}}
-
-User Request:
-
-{user_request}
+User Request: {user_request}
 """
 
         response = self.llm.ask(
-
             prompt
-
         )
 
         print("=" * 70)
@@ -279,9 +190,7 @@ User Request:
         print(response)
 
         data = JSONParser.parse(
-
             response
-
         )
 
         print("=" * 70)
@@ -290,27 +199,14 @@ User Request:
         print(data)
 
         command = {
-
-            "domain": data.get(
-                "domain",
-                platform
-            ),
-
-            "service": data.get(
-                "service",
-                "actions"
-            ),
-
-            "action": data.get(
-                "action"
-            ),
-
-            "parameters": data.get(
-                "parameters",
-                {}
-            )
-
+            "domain": data.get("domain", "general"),
+            "service": data.get("service", "chat"),
+            "action": data.get("action", "answer"),
+            "parameters": data.get("parameters", {"question": user_request})
         }
+
+        if command["action"] == "answer" and "question" not in command["parameters"]:
+            command["parameters"]["question"] = user_request
 
         print("=" * 70)
         print("Execution Command")
@@ -318,7 +214,5 @@ User Request:
         print(command)
 
         return ExecutionCommand(
-
             **command
-
         )
